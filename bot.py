@@ -5,13 +5,15 @@
 ║         Ready-to-sell demo bot                          ║
 ╚══════════════════════════════════════════════════════════╝
 
-Author  : Your Name
+Author  : Salimov
 Version : 1.0.0
 Stack   : Python 3.10+, aiogram 3.x, FSM
 """
 
 import asyncio
 import logging
+import os
+from aiohttp import web
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
@@ -143,7 +145,19 @@ dp = Dispatcher(storage=MemoryStorage())
 # ──────────────────────────────────────────────
 #  /start  HANDLER
 # ──────────────────────────────────────────────
+# --- RENDER PORTINI ALDASH UCHUN ---
+async def handle(request):
+    return web.Response(text="Bot is running!")
 
+async def start_web_server():
+    app = web.Application()
+    app.router.add_get("/", handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.environ.get("PORT", 8080))
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+# ----------------------------------
 @dp.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext) -> None:
     """Handle /start — show welcome message and main menu."""
@@ -330,10 +344,35 @@ async def show_contact(message: Message) -> None:
 #  🌐  ENTRY POINT
 # ──────────────────────────────────────────────
 
+# --- RENDER UCHUN PORT OCHISH QISMI ---
+async def handle(request):
+    """Render portni tekshirganida javob beradi"""
+    return web.Response(text="Bot is running!")
+
+async def start_web_server():
+    """Render kutayotgan portni ochib beradi"""
+    app = web.Application()
+    app.router.add_get("/", handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    
+    # Render portni o'zi beradi, u yo'q bo'lsa 8080 ishlatiladi
+    port = int(os.environ.get("PORT", 8080))
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    logger.info(f"Veb-server {port}-portda ishga tushdi.")
+
+# --- YANGI MAIN FUNKSIYASI ---
 async def main() -> None:
+    # 1. Avval veb-serverni yoqamiz (Render portni ko'rishi uchun)
+    await start_web_server()
+    
+    # 2. Keyin botni ishga tushiramiz
     logger.info("Bot ishga tushmoqda... 🚀")
     await dp.start_polling(bot, skip_updates=True)
 
-
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Bot to'xtatildi")

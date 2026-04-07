@@ -36,8 +36,13 @@ from aiogram.types import (
 #  ⚙️  CONFIGURATION  (edit these values)
 # ──────────────────────────────────────────────
 
-BOT_TOKEN = "8733419389:AAF9y3jrrCLUQt4NYXJ95m0mL9IYlUOoJwY"   # 👈 Paste your BotFather token here
-ADMIN_ID  = 6986558107               # 👈 Paste your Telegram numeric user-id here
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID"))
 ADMIN_USERNAME = "@Zephroth"    # 👈 Your Telegram @username for Contact section
 
 # ──────────────────────────────────────────────
